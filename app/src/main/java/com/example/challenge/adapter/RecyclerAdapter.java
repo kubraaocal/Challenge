@@ -3,6 +3,7 @@ package com.example.challenge.adapter;
 import android.content.Context;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,12 +13,14 @@ import android.widget.Filterable;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.example.challenge.db.FavDB;
 import com.example.challenge.ui.CatDetailActivity;
 import com.example.challenge.R;
 import com.example.challenge.model.RecyclerModel;
@@ -30,6 +33,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Myview
     Context context;
     List<RecyclerModel> catList;
     List<RecyclerModel> catSearch;
+    private FavDB favDB;
 
     public RecyclerAdapter(Context context, List<RecyclerModel> catList) {
         this.context = context;
@@ -44,8 +48,23 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Myview
 
     @Override
     public RecyclerAdapter.MyviewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        favDB = new FavDB(context);
+        //create table on first
+        SharedPreferences prefs = context.getSharedPreferences("prefs", Context.MODE_PRIVATE);
+        boolean firstStart = prefs.getBoolean("firstStart", true);
+        if (firstStart) {
+            createTableOnFirstStart();
+        }
         View view = LayoutInflater.from(context).inflate(R.layout.recycler_view_card,parent,false);
         return new MyviewHolder(view);
+    }
+
+    private void createTableOnFirstStart() {
+        SharedPreferences prefs = context.getSharedPreferences("prefs", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putBoolean("firstStart", false);
+        editor.apply();
+
     }
 
     @Override
@@ -118,13 +137,27 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Myview
                 public void onClick(View view) {
                     int position = getAdapterPosition();
                     RecyclerModel cat=catList.get(position);
-                    /*if(cat.isFavStatus()==false){
+                    if(cat.isFavStatus()==false){
                         favButton.setSelected(true);
                         cat.setFavStatus(true);
+                        try{
+                            boolean checkInsertData=favDB.addCat(catList.get(position).getId(),catList.get(position).getName(),
+                                    catList.get(position).getImage().getImageUrl(),catList.get(position).isFavStatus());
+                            if (checkInsertData) {
+                                Toast.makeText(context, "Başarıyla kayıt edildi", Toast.LENGTH_LONG).show();
+                            } else {
+                                Toast.makeText(context, "Kayıt edilmedi", Toast.LENGTH_LONG).show();
+                            }
+                        }catch (NullPointerException e){
+                            Log.e("TAG","db kaydetmedi"+e.getMessage());
+                        }
+
+
                     }else{
                         favButton.setSelected(false);
                         cat.setFavStatus(false);
-                    }*/
+                        //favDB.remove_fav(catList.get(position).getId());
+                    }
                 }
             });
 

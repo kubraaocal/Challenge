@@ -16,6 +16,8 @@ public class RecyclerModel {
     @Expose
     private String imageId;
 
+    private boolean favStatus;
+
     @SerializedName("image")
     @Expose
     private Image image;
@@ -42,6 +44,15 @@ public class RecyclerModel {
         }
     }
 
+    public RecyclerModel() {
+    }
+
+    public RecyclerModel(String id, String name, String imageId) {
+        this.id = id;
+        this.name = name;
+        this.imageId = imageId;
+    }
+
     public String getId() {
         return id;
     }
@@ -62,5 +73,11 @@ public class RecyclerModel {
         this.name = name;
     }
 
+    public boolean isFavStatus() {
+        return favStatus;
+    }
 
+    public void setFavStatus(boolean favStatus) {
+        this.favStatus = favStatus;
+    }
 }
