@@ -3,7 +3,7 @@ package com.example.challenge.model;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class RecyclerModel {
+public class CatRecycler {
     @SerializedName("id")
     @Expose
     private String id;
@@ -44,10 +44,10 @@ public class RecyclerModel {
         }
     }
 
-    public RecyclerModel() {
+    public CatRecycler() {
     }
 
-    public RecyclerModel(String id, String name, String imageId) {
+    public CatRecycler(String id, String name, String imageId) {
         this.id = id;
         this.name = name;
         this.imageId = imageId;

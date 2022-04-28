@@ -5,14 +5,13 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 
-import com.example.challenge.model.RecyclerModel;
+import com.example.challenge.model.CatRecycler;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class FavDB extends SQLiteOpenHelper {
+public class FavoriteDB extends SQLiteOpenHelper {
     private static int DB_VERSION = 1;
     private static String DATABASE_NAME = "CatDB";
     private static String TABLE_NAME = "favoriteTable";
@@ -25,9 +24,9 @@ public class FavDB extends SQLiteOpenHelper {
             + KEY_ID + " TEXT," + ITEM_TITLE+ " TEXT,"
             + ITEM_IMAGE + " TEXT," + FAVORITE_STATUS+" TEXT)";
 
-    List<RecyclerModel> catList;
+    List<CatRecycler> catList;
 
-    public FavDB(Context context) { super(context,DATABASE_NAME,null,DB_VERSION);}
+    public FavoriteDB(Context context) { super(context,DATABASE_NAME,null,DB_VERSION);}
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         sqLiteDatabase.execSQL(CREATE_TABLE);
@@ -48,7 +47,35 @@ public class FavDB extends SQLiteOpenHelper {
         }
     }
 
-    public List<RecyclerModel> getAllList(){
+    public boolean deleteCat(String id){
+        SQLiteDatabase db= this.getWritableDatabase();
+        Cursor  cursor = db.rawQuery("select * from "+TABLE_NAME+" where "+KEY_ID+" =  ?",new String[]{id});
+        if(cursor.getCount()>0) {
+            long result = db.delete(TABLE_NAME, KEY_ID + "=?", new String[]{id});
+            if (result == -1) {
+                return false;
+            } else {
+                return true;
+            }
+        }else{
+            return false;
+        }
+    }
+
+    public List<CatRecycler> getIdList(){
+        List idList=new ArrayList<>();
+        SQLiteDatabase db= this.getReadableDatabase();
+        Cursor  cursor = db.rawQuery("select * from "+TABLE_NAME,null);
+        while (cursor.moveToNext()){
+            int index1 =cursor.getColumnIndex(KEY_ID);
+            String getId= cursor.getString(index1);
+
+            idList.add(getId);
+        }
+        return idList;
+    }
+
+    public List<CatRecycler> getAllList(){
         catList=new ArrayList<>();
         SQLiteDatabase db= this.getReadableDatabase();
         Cursor  cursor = db.rawQuery("select * from "+TABLE_NAME,null);
@@ -62,7 +89,7 @@ public class FavDB extends SQLiteOpenHelper {
             int index4 =cursor.getColumnIndex(FAVORITE_STATUS);
             String getFavStatus= cursor.getString(index4);
 
-            RecyclerModel model=new RecyclerModel(getId,getName,getImage);
+            CatRecycler model=new CatRecycler(getId,getName,getImage);
             catList.add(model);
         }
         return catList;

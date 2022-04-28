@@ -6,34 +6,32 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.challenge.R;
 import com.example.challenge.adapter.RecyclerAdapter;
-import com.example.challenge.db.FavDB;
-import com.example.challenge.db.FavItem;
-import com.example.challenge.model.RecyclerModel;
+import com.example.challenge.db.FavoriteDB;
+import com.example.challenge.model.CatRecycler;
 
-import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class FavoriteActivity extends AppCompatActivity {
 
-    List<RecyclerModel> catList;
+    List<CatRecycler> catList;
     RecyclerView recyclerView;
-    FavDB favDB;
+    FavoriteDB favoriteDB;
     RecyclerAdapter recyclerAdapter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_favorite);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle("Favorilerim");
 
         recyclerView = (RecyclerView)findViewById(R.id.recycle_view_fav);
 
-        favDB = new FavDB(FavoriteActivity.this);
-        catList=favDB.getAllList();
+        favoriteDB = new FavoriteDB(FavoriteActivity.this);
+        catList= favoriteDB.getAllList();
         Log.e("TAG","liste " +catList);
-
 
         recyclerAdapter = new RecyclerAdapter(getApplicationContext(),catList);
         recyclerAdapter.setCatList(catList);
@@ -41,12 +39,6 @@ public class FavoriteActivity extends AppCompatActivity {
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(recyclerAdapter);
-
-
-
-
-
-
 
     }
 }

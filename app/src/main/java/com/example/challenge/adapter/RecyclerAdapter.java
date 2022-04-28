@@ -4,6 +4,7 @@ import android.content.Context;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,27 +21,33 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-import com.example.challenge.db.FavDB;
+import com.example.challenge.db.FavoriteDB;
 import com.example.challenge.ui.CatDetailActivity;
 import com.example.challenge.R;
-import com.example.challenge.model.RecyclerModel;
+import com.example.challenge.model.CatRecycler;
+import com.example.challenge.ui.FavoriteActivity;
 
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyviewHolder> implements Filterable {
 
     Context context;
-    List<RecyclerModel> catList;
-    List<RecyclerModel> catSearch;
-    private FavDB favDB;
+    List<CatRecycler> catList;
+    List<CatRecycler> catSearch;
+    private FavoriteDB favoriteDB;
+    List idList;
+    private boolean value;
 
-    public RecyclerAdapter(Context context, List<RecyclerModel> catList) {
+    public RecyclerAdapter(Context context, List<CatRecycler> catList) {
         this.context = context;
         this.catList = catList;
+        this.favoriteDB = new FavoriteDB(context);
+        this.idList= favoriteDB.getIdList();
     }
 
-    public void setCatList(List<RecyclerModel> catList) {
+    public void setCatList(List<CatRecycler> catList) {
         this.catList = catList;
         this.catSearch = new ArrayList<>(catList);
         notifyDataSetChanged();
@@ -48,7 +55,6 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Myview
 
     @Override
     public RecyclerAdapter.MyviewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        favDB = new FavDB(context);
         //create table on first
         SharedPreferences prefs = context.getSharedPreferences("prefs", Context.MODE_PRIVATE);
         boolean firstStart = prefs.getBoolean("firstStart", true);
@@ -70,9 +76,21 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Myview
     @Override
     public void onBindViewHolder(RecyclerAdapter.MyviewHolder holder, int position) {
         try {
-            holder.catName.setText(catList.get(position).getName().toString());
-            Glide.with(context).load("https://cdn2.thecatapi.com/images/"+catList.get(position).getImageId()+".jpg")
-                    .apply(RequestOptions.centerCropTransform()).into(holder.image);
+            if(idList.contains(catList.get(position).getId().toString())) {
+                holder.catName.setText(catList.get(position).getName().toString());
+                Glide.with(context).load("https://cdn2.thecatapi.com/images/" + catList.get(position).getImageId() + ".jpg")
+                        .apply(RequestOptions.centerCropTransform()).into(holder.image);
+                catList.get(position).setFavStatus(true);
+                holder.favButton.setSelected(true);
+            }
+            else {
+                holder.catName.setText(catList.get(position).getName().toString());
+                Glide.with(context).load("https://cdn2.thecatapi.com/images/" + catList.get(position).getImageId() + ".jpg")
+                        .apply(RequestOptions.centerCropTransform()).into(holder.image);
+                catList.get(position).setFavStatus(false);
+                holder.favButton.setSelected(false);
+            }
+
         }catch (NullPointerException e){
             Log.e("tag", e.toString());
         }
@@ -93,13 +111,13 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Myview
             @Override
             protected FilterResults performFiltering(CharSequence charSequence) {
 
-                List<RecyclerModel> resultData = new ArrayList<>();
+                List<CatRecycler> resultData = new ArrayList<>();
                 if(charSequence.toString().isEmpty()){
                     resultData.addAll(catSearch);
 
                 }else{
                     String searchChr = charSequence.toString().toLowerCase();
-                    for(RecyclerModel cat: catSearch){
+                    for(CatRecycler cat: catSearch){
                         if(cat.getName().toLowerCase().contains(searchChr)){
                             resultData.add(cat);
                         }
@@ -113,7 +131,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Myview
             @Override
             protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
                 catList.clear();
-                catList.addAll((List<RecyclerModel>) filterResults.values);
+                catList.addAll((List<CatRecycler>) filterResults.values);
                 notifyDataSetChanged();
             }
         };
@@ -137,27 +155,37 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Myview
                 @Override
                 public void onClick(View view) {
                     int position = getAdapterPosition();
-                    RecyclerModel cat=catList.get(position);
+                    CatRecycler cat=catList.get(position);
                     if(cat.isFavStatus()==false){
                         favButton.setSelected(true);
                         cat.setFavStatus(true);
                         try{
-                            boolean checkInsertData=favDB.addCat(catList.get(position).getId(),catList.get(position).getName(),
-                                    catList.get(position).getImageId(),catList.get(position).isFavStatus());
-                            if (checkInsertData) {
-                                Toast.makeText(context, "Başarıyla kayıt edildi", Toast.LENGTH_LONG).show();
-                            } else {
-                                Toast.makeText(context, "Kayıt edilmedi", Toast.LENGTH_LONG).show();
+                            if(!idList.contains(catList.get(position).getId())) {
+                                boolean checkInsertData = favoriteDB.addCat(catList.get(position).getId(), catList.get(position).getName(),
+                                        catList.get(position).getImageId(), catList.get(position).isFavStatus());
+                                idList= favoriteDB.getIdList();
+                                if (checkInsertData) {
+                                    Toast.makeText(context, "Başarıyla kayıt edildi", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    Toast.makeText(context, "Kayıt edilmedi", Toast.LENGTH_LONG).show();
+                                }
                             }
                         }catch (NullPointerException e){
                             Log.e("TAG","db kaydetmedi"+e.getMessage());
                         }
-
-
                     }else{
                         favButton.setSelected(false);
                         cat.setFavStatus(false);
-                        //favDB.remove_fav(catList.get(position).getId());
+                        favoriteDB.deleteCat(catList.get(position).getId());
+                        Handler handler = new Handler();
+                        handler.postDelayed(new Runnable() {
+                            public void run() {
+                                idList= favoriteDB.getIdList();
+                                catList= favoriteDB.getAllList();
+                                setCatList(catList);
+                            }
+                        }, 500);
+
                     }
                 }
             });
@@ -169,7 +197,6 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Myview
                     Intent intent=new Intent(context,CatDetailActivity.class);
                     intent.putExtra("id",catList.get(position).getId());
                     context.startActivity(intent);
-
                 }
             });
         }

@@ -7,7 +7,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.AbsListView;
@@ -19,8 +18,8 @@ import com.example.challenge.R;
 import com.example.challenge.adapter.RecyclerAdapter;
 import com.example.challenge.api.ApiClient;
 import com.example.challenge.api.ApiInterface;
-import com.example.challenge.db.FavDB;
-import com.example.challenge.model.RecyclerModel;
+import com.example.challenge.db.FavoriteDB;
+import com.example.challenge.model.CatRecycler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,13 +29,13 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
-    List<RecyclerModel> catList;
-    List<RecyclerModel> newList;
+    List<CatRecycler> catList;
+    List<CatRecycler> newList;
     RecyclerView recyclerView;
     RecyclerAdapter recyclerAdapter;
     SearchView searchView;
     ImageView favPage;
-    FavDB favDb;
+    FavoriteDB favoriteDb;
     ProgressBar progressBar;
 
     boolean isScrolling=false;
@@ -105,10 +104,10 @@ public class MainActivity extends AppCompatActivity {
     private void getData(){
         progressBar.setVisibility(View.VISIBLE);
         ApiInterface apiService = ApiClient.getClient().create(ApiInterface.class);
-        Call<List<RecyclerModel>> call = apiService.getCats();
-        call.enqueue(new Callback<List<RecyclerModel>>() {
+        Call<List<CatRecycler>> call = apiService.getCats();
+        call.enqueue(new Callback<List<CatRecycler>>() {
             @Override
-            public void onResponse(Call<List<RecyclerModel>> call, Response<List<RecyclerModel>> response) {
+            public void onResponse(Call<List<CatRecycler>> call, Response<List<CatRecycler>> response) {
                 if(response.isSuccessful()&&!response.body().isEmpty()) {
                     catList = response.body();
                     recyclerAdapter.setCatList(catList);
@@ -117,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<List<RecyclerModel>> call, Throwable t) {
+            public void onFailure(Call<List<CatRecycler>> call, Throwable t) {
                 Log.d("TAG","Response = "+t.toString());
             }
         });

@@ -15,7 +15,8 @@
         android:theme="@style/Theme.Challenge">
         <activity
             android:name=".ui.FavoriteActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:parentActivityName=".ui.MainActivity"/>
         <activity
             android:name=".ui.CatDetailActivity"
             android:exported="false"
