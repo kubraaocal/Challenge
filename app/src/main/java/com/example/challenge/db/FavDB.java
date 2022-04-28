@@ -31,8 +31,6 @@ public class FavDB extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         sqLiteDatabase.execSQL(CREATE_TABLE);
-
-
     }
 
     public boolean addCat(String id,String name, String url,boolean status){

@@ -16,6 +16,7 @@ import com.example.challenge.api.ApiInterface;
 import com.example.challenge.model.Cat;
 
 import java.util.List;
+import java.util.Objects;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -28,6 +29,7 @@ public class CatDetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cat_detail);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true); //geri gelme butonu
 
         txtName = findViewById(R.id.text_name);
         txtOr=findViewById(R.id.text_origin);
@@ -51,6 +53,7 @@ public class CatDetailActivity extends AppCompatActivity {
                 if(!response.body().isEmpty()) {
                     try {
                         Cat cat=response.body().get(0);
+                        getSupportActionBar().setTitle(cat.getName().toString());//KEDİ İSMİ GELECEK VERİLERİ ÇEKTİĞİNDE
                         txtOr.setText(cat.getOrigin().toString());
                         txtName.setText(cat.getName().toString());
                         txtDis.setText(cat.getDescription().toString());
@@ -70,6 +73,8 @@ public class CatDetailActivity extends AppCompatActivity {
                 Log.e("TAG","a"+t.toString());
             }
         });
+
+
 
 
     }

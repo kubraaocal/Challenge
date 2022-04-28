@@ -1,14 +1,18 @@
 package com.example.challenge.ui;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.SearchView;
 
 import com.example.challenge.R;
@@ -33,6 +37,10 @@ public class MainActivity extends AppCompatActivity {
     SearchView searchView;
     ImageView favPage;
     FavDB favDb;
+    ProgressBar progressBar;
+
+    boolean isScrolling=false;
+    int currentItems,totalItems,scrollOutItems;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setAdapter(recyclerAdapter);
         searchView=findViewById(R.id.search_view);
         favPage=findViewById(R.id.fav);
+        progressBar=findViewById(R.id.progress_bar);
 
         favPage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -56,9 +65,6 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
-        ApiInterface apiService = ApiClient.getClient().create(ApiInterface.class);
-        Call<List<RecyclerModel>> call = apiService.getCats();
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -73,11 +79,41 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                if(newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL){
+                    isScrolling=true;
+                }
+            }
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                currentItems=layoutManager.getChildCount();
+                totalItems=layoutManager.getItemCount();
+                scrollOutItems=layoutManager.findFirstVisibleItemPosition();
+                if(isScrolling && (currentItems+scrollOutItems == totalItems)){
+                    isScrolling=false;
+                    getData();
+                }
+            }
+        });
+        getData();
+    }
+
+    private void getData(){
+        progressBar.setVisibility(View.VISIBLE);
+        ApiInterface apiService = ApiClient.getClient().create(ApiInterface.class);
+        Call<List<RecyclerModel>> call = apiService.getCats();
         call.enqueue(new Callback<List<RecyclerModel>>() {
             @Override
             public void onResponse(Call<List<RecyclerModel>> call, Response<List<RecyclerModel>> response) {
-                catList = response.body();
-                        recyclerAdapter.setCatList(catList);
+                if(response.isSuccessful()&&!response.body().isEmpty()) {
+                    catList = response.body();
+                    recyclerAdapter.setCatList(catList);
+                    progressBar.setVisibility(View.GONE);
+                }
             }
 
             @Override

@@ -42,7 +42,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Myview
 
     public void setCatList(List<RecyclerModel> catList) {
         this.catList = catList;
-        this.catSearch =new ArrayList<>(catList);
+        this.catSearch = new ArrayList<>(catList);
         notifyDataSetChanged();
     }
 
@@ -71,7 +71,8 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Myview
     public void onBindViewHolder(RecyclerAdapter.MyviewHolder holder, int position) {
         try {
             holder.catName.setText(catList.get(position).getName().toString());
-            Glide.with(context).load(catList.get(position).getImage().getImageUrl()).apply(RequestOptions.centerCropTransform()).into(holder.image);
+            Glide.with(context).load("https://cdn2.thecatapi.com/images/"+catList.get(position).getImageId()+".jpg")
+                    .apply(RequestOptions.centerCropTransform()).into(holder.image);
         }catch (NullPointerException e){
             Log.e("tag", e.toString());
         }
@@ -142,7 +143,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Myview
                         cat.setFavStatus(true);
                         try{
                             boolean checkInsertData=favDB.addCat(catList.get(position).getId(),catList.get(position).getName(),
-                                    catList.get(position).getImage().getImageUrl(),catList.get(position).isFavStatus());
+                                    catList.get(position).getImageId(),catList.get(position).isFavStatus());
                             if (checkInsertData) {
                                 Toast.makeText(context, "Başarıyla kayıt edildi", Toast.LENGTH_LONG).show();
                             } else {
