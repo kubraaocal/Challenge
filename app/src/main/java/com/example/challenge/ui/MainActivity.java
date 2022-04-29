@@ -15,7 +15,7 @@ import android.widget.ProgressBar;
 import android.widget.SearchView;
 
 import com.example.challenge.R;
-import com.example.challenge.adapter.RecyclerAdapter;
+import com.example.challenge.adapter.MainRecyclerAdapter;
 import com.example.challenge.api.ApiClient;
 import com.example.challenge.api.ApiInterface;
 import com.example.challenge.db.FavoriteDB;
@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
     List<CatRecycler> catList;
     List<CatRecycler> newList;
     RecyclerView recyclerView;
-    RecyclerAdapter recyclerAdapter;
+    MainRecyclerAdapter mainRecyclerAdapter;
     SearchView searchView;
     ImageView favPage;
     FavoriteDB favoriteDb;
@@ -51,8 +51,8 @@ public class MainActivity extends AppCompatActivity {
         recyclerView = (RecyclerView)findViewById(R.id.recycle_view);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
-        recyclerAdapter = new RecyclerAdapter(getApplicationContext(),catList);
-        recyclerView.setAdapter(recyclerAdapter);
+        mainRecyclerAdapter = new MainRecyclerAdapter(getApplicationContext(),catList);
+        recyclerView.setAdapter(mainRecyclerAdapter);
         searchView=findViewById(R.id.search_view);
         favPage=findViewById(R.id.fav);
         progressBar=findViewById(R.id.progress_bar);
@@ -73,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public boolean onQueryTextChange(String s) {
-                recyclerAdapter.getFilter().filter(s);
+                mainRecyclerAdapter.getFilter().filter(s);
                 return false;
             }
         });
@@ -110,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
             public void onResponse(Call<List<CatRecycler>> call, Response<List<CatRecycler>> response) {
                 if(response.isSuccessful()&&!response.body().isEmpty()) {
                     catList = response.body();
-                    recyclerAdapter.setCatList(catList);
+                    mainRecyclerAdapter.setCatList(catList);
                     progressBar.setVisibility(View.GONE);
                 }
             }

@@ -1,9 +1,14 @@
 package com.example.challenge.model;
 
+import android.util.Log;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 public class CatRecycler {
+
+
+
     @SerializedName("id")
     @Expose
     private String id;
@@ -26,14 +31,22 @@ public class CatRecycler {
         return image;
     }
 
-    public void setImage(Image image) {
-        this.image = image;
-    }
-
     public class Image{
         @SerializedName("url")
         @Expose
         private String imageUrl;
+
+        @SerializedName("id")
+        @Expose
+        private String imageId;
+
+        public String getImageId() {
+            return imageId;
+        }
+
+        public void setImageId(String imageId) {
+            this.imageId = imageId;
+        }
 
         public String getImageUrl() {
             return imageUrl;
@@ -44,33 +57,23 @@ public class CatRecycler {
         }
     }
 
-    public CatRecycler() {
-    }
-
-    public CatRecycler(String id, String name, String imageId) {
+    public CatRecycler(String id, String name, String imageUrl) {
         this.id = id;
         this.name = name;
-        this.imageId = imageId;
+        this.imageId=imageUrl;
+    }
+
+
+    public String getImageId() {
+        return imageId;
     }
 
     public String getId() {
         return id;
     }
 
-    public String getImageId() {
-        return imageId;
-    }
-
-    public void setImageId(String imageId) {
-        this.imageId = imageId;
-    }
-
     public String getName() {
         return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public boolean isFavStatus() {

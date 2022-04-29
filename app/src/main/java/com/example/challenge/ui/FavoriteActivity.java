@@ -5,12 +5,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.challenge.R;
-import com.example.challenge.adapter.RecyclerAdapter;
+import com.example.challenge.adapter.FavoriteRecyclerAdapter;
 import com.example.challenge.db.FavoriteDB;
 import com.example.challenge.model.CatRecycler;
 
 import android.os.Bundle;
-import android.util.Log;
 
 import java.util.List;
 
@@ -19,7 +18,7 @@ public class FavoriteActivity extends AppCompatActivity {
     List<CatRecycler> catList;
     RecyclerView recyclerView;
     FavoriteDB favoriteDB;
-    RecyclerAdapter recyclerAdapter;
+    FavoriteRecyclerAdapter recyclerAdapter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,9 +30,8 @@ public class FavoriteActivity extends AppCompatActivity {
 
         favoriteDB = new FavoriteDB(FavoriteActivity.this);
         catList= favoriteDB.getAllList();
-        Log.e("TAG","liste " +catList);
 
-        recyclerAdapter = new RecyclerAdapter(getApplicationContext(),catList);
+        recyclerAdapter = new FavoriteRecyclerAdapter(getApplicationContext(),catList);
         recyclerAdapter.setCatList(catList);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);

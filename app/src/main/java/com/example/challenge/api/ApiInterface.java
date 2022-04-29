@@ -1,6 +1,6 @@
 package com.example.challenge.api;
 
-import com.example.challenge.model.Cat;
+import com.example.challenge.model.CatDetail;
 import com.example.challenge.model.CatRecycler;
 
 import java.util.List;
@@ -14,8 +14,8 @@ public interface ApiInterface {
     @GET("v1/breeds")
     Call<List<CatRecycler>> getCats();
 
-    @GET("v1/breeds/search")
-    Call<List<Cat>> getCatId(@Query("q") String catId);
+    @GET("v1/images/search")
+    Call<List<CatDetail>> getCatId(@Query("breed_id") String catId);
 
 }
 

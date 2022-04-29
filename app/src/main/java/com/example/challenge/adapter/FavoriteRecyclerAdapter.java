@@ -16,6 +16,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -31,16 +32,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyviewHolder> implements Filterable {
+public class FavoriteRecyclerAdapter extends RecyclerView.Adapter<FavoriteRecyclerAdapter.MyviewHolder>{
 
     Context context;
     List<CatRecycler> catList;
-    List<CatRecycler> catSearch;
     private FavoriteDB favoriteDB;
     List idList;
     private boolean value;
 
-    public RecyclerAdapter(Context context, List<CatRecycler> catList) {
+    public FavoriteRecyclerAdapter(Context context, List<CatRecycler> catList) {
         this.context = context;
         this.catList = catList;
         this.favoriteDB = new FavoriteDB(context);
@@ -49,12 +49,11 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Myview
 
     public void setCatList(List<CatRecycler> catList) {
         this.catList = catList;
-        this.catSearch = new ArrayList<>(catList);
         notifyDataSetChanged();
     }
 
     @Override
-    public RecyclerAdapter.MyviewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public FavoriteRecyclerAdapter.MyviewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         //create table on first
         SharedPreferences prefs = context.getSharedPreferences("prefs", Context.MODE_PRIVATE);
         boolean firstStart = prefs.getBoolean("firstStart", true);
@@ -63,6 +62,29 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Myview
         }
         View view = LayoutInflater.from(context).inflate(R.layout.recycler_view_card,parent,false);
         return new MyviewHolder(view);
+    }
+
+    @Override
+    public void onBindViewHolder(FavoriteRecyclerAdapter.MyviewHolder holder, int position) {
+        try {
+                holder.catName.setText(catList.get(position).getName().toString());
+            if(catList.get(position).getId().contains("beng") || catList.get(position).getId().contains("drex")
+                    || catList.get(position).getId().contains("kora") ){
+                Glide.with(context).load("https://cdn2.thecatapi.com/images/"+catList.get(position).getImageId()+".png")
+                        .apply(RequestOptions.centerCropTransform()).into(holder.image);
+            }else{
+                Glide.with(context).load("https://cdn2.thecatapi.com/images/"+catList.get(position).getImageId()+".jpg")
+                        .apply(RequestOptions.centerCropTransform()).into(holder.image);
+            }
+
+
+                catList.get(position).setFavStatus(true);
+                holder.favButton.setSelected(true);
+
+
+        }catch (NullPointerException e){
+            Log.e("tag", e.toString());
+        }
     }
 
     private void createTableOnFirstStart() {
@@ -74,68 +96,11 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Myview
     }
 
     @Override
-    public void onBindViewHolder(RecyclerAdapter.MyviewHolder holder, int position) {
-        try {
-            if(idList.contains(catList.get(position).getId().toString())) {
-                holder.catName.setText(catList.get(position).getName().toString());
-                Glide.with(context).load("https://cdn2.thecatapi.com/images/" + catList.get(position).getImageId() + ".jpg")
-                        .apply(RequestOptions.centerCropTransform()).into(holder.image);
-                catList.get(position).setFavStatus(true);
-                holder.favButton.setSelected(true);
-            }
-            else {
-                holder.catName.setText(catList.get(position).getName().toString());
-                Glide.with(context).load("https://cdn2.thecatapi.com/images/" + catList.get(position).getImageId() + ".jpg")
-                        .apply(RequestOptions.centerCropTransform()).into(holder.image);
-                catList.get(position).setFavStatus(false);
-                holder.favButton.setSelected(false);
-            }
-
-        }catch (NullPointerException e){
-            Log.e("tag", e.toString());
-        }
-    }
-
-    @Override
     public int getItemCount() {
         if(catList != null){
             return catList.size();
         }
         return 0;
-
-    }
-
-    @Override
-    public Filter getFilter() {
-        Filter filter = new Filter() {
-            @Override
-            protected FilterResults performFiltering(CharSequence charSequence) {
-
-                List<CatRecycler> resultData = new ArrayList<>();
-                if(charSequence.toString().isEmpty()){
-                    resultData.addAll(catSearch);
-
-                }else{
-                    String searchChr = charSequence.toString().toLowerCase();
-                    for(CatRecycler cat: catSearch){
-                        if(cat.getName().toLowerCase().contains(searchChr)){
-                            resultData.add(cat);
-                        }
-                    }
-                }
-                FilterResults filterResults = new FilterResults();
-                filterResults.values = resultData;
-                return filterResults;
-            }
-
-            @Override
-            protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
-                catList.clear();
-                catList.addAll((List<CatRecycler>) filterResults.values);
-                notifyDataSetChanged();
-            }
-        };
-        return filter;
     }
 
     public class MyviewHolder extends RecyclerView.ViewHolder {
@@ -162,7 +127,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Myview
                         try{
                             if(!idList.contains(catList.get(position).getId())) {
                                 boolean checkInsertData = favoriteDB.addCat(catList.get(position).getId(), catList.get(position).getName(),
-                                        catList.get(position).getImageId(), catList.get(position).isFavStatus());
+                                        catList.get(position).getImage().getImageId(), catList.get(position).isFavStatus());
                                 idList= favoriteDB.getIdList();
                                 if (checkInsertData) {
                                     Toast.makeText(context, "Başarıyla kayıt edildi", Toast.LENGTH_SHORT).show();
@@ -196,9 +161,11 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Myview
                     int position = getAdapterPosition();
                     Intent intent=new Intent(context,CatDetailActivity.class);
                     intent.putExtra("id",catList.get(position).getId());
+                    intent.putExtra("status",catList.get(position).isFavStatus());
                     context.startActivity(intent);
                 }
             });
         }
     }
 }
+
