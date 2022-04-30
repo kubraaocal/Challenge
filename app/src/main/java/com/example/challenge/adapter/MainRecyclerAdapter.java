@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class MainRecyclerAdapter extends RecyclerView.Adapter<MainRecyclerAdapter.MyviewHolder> implements Filterable {
+public class MainRecyclerAdapter extends RecyclerView.Adapter<MainRecyclerAdapter.MyviewHolder> {
 
     Context context;
     List<CatRecycler> catList;
@@ -76,15 +76,27 @@ public class MainRecyclerAdapter extends RecyclerView.Adapter<MainRecyclerAdapte
         try {
             if(idList.contains(catList.get(position).getId().toString())) {
                 holder.catName.setText(catList.get(position).getName().toString());
-                Glide.with(context).load(catList.get(position).getImage().getImageUrl())
-                        .apply(RequestOptions.centerCropTransform()).into(holder.image);
+                if(catList.get(position).getId().contains("beng") || catList.get(position).getId().contains("drex")
+                        || catList.get(position).getId().contains("kora") ){
+                    Glide.with(context).load("https://cdn2.thecatapi.com/images/"+catList.get(position).getImageId()+".png")
+                            .apply(RequestOptions.centerCropTransform()).into(holder.image);
+                }else{
+                    Glide.with(context).load("https://cdn2.thecatapi.com/images/"+catList.get(position).getImageId()+".jpg")
+                            .apply(RequestOptions.centerCropTransform()).into(holder.image);
+                }
                 catList.get(position).setFavStatus(true);
                 holder.favButton.setSelected(true);
             }
             else {
                 holder.catName.setText(catList.get(position).getName().toString());
-                Glide.with(context).load(catList.get(position).getImage().getImageUrl())
-                        .apply(RequestOptions.centerCropTransform()).into(holder.image);
+                if(catList.get(position).getId().contains("beng") || catList.get(position).getId().contains("drex")
+                        || catList.get(position).getId().contains("kora") ){
+                    Glide.with(context).load("https://cdn2.thecatapi.com/images/"+catList.get(position).getImageId()+".png")
+                            .apply(RequestOptions.centerCropTransform()).into(holder.image);
+                }else{
+                    Glide.with(context).load("https://cdn2.thecatapi.com/images/"+catList.get(position).getImageId()+".jpg")
+                            .apply(RequestOptions.centerCropTransform()).into(holder.image);
+                }
                 catList.get(position).setFavStatus(false);
                 holder.favButton.setSelected(false);
             }
@@ -103,7 +115,7 @@ public class MainRecyclerAdapter extends RecyclerView.Adapter<MainRecyclerAdapte
 
     }
 
-    @Override
+   /* @Override
     public Filter getFilter() {
         Filter filter = new Filter() {
             @Override
@@ -134,7 +146,7 @@ public class MainRecyclerAdapter extends RecyclerView.Adapter<MainRecyclerAdapte
             }
         };
         return filter;
-    }
+    }*/
 
     public class MyviewHolder extends RecyclerView.ViewHolder {
         TextView catName;

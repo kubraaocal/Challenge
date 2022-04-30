@@ -124,20 +124,6 @@ public class FavoriteRecyclerAdapter extends RecyclerView.Adapter<FavoriteRecycl
                     if(cat.isFavStatus()==false){
                         favButton.setSelected(true);
                         cat.setFavStatus(true);
-                        try{
-                            if(!idList.contains(catList.get(position).getId())) {
-                                boolean checkInsertData = favoriteDB.addCat(catList.get(position).getId(), catList.get(position).getName(),
-                                        catList.get(position).getImage().getImageId(), catList.get(position).isFavStatus());
-                                idList= favoriteDB.getIdList();
-                                if (checkInsertData) {
-                                    Toast.makeText(context, "Başarıyla kayıt edildi", Toast.LENGTH_SHORT).show();
-                                } else {
-                                    Toast.makeText(context, "Kayıt edilmedi", Toast.LENGTH_LONG).show();
-                                }
-                            }
-                        }catch (NullPointerException e){
-                            Log.e("TAG","db kaydetmedi"+e.getMessage());
-                        }
                     }else{
                         favButton.setSelected(false);
                         cat.setFavStatus(false);

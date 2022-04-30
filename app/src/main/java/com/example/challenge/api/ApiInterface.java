@@ -17,5 +17,8 @@ public interface ApiInterface {
     @GET("v1/images/search")
     Call<List<CatDetail>> getCatId(@Query("breed_id") String catId);
 
+    @GET("v1/breeds/search")
+    Call<List<CatRecycler>> getCatSearch(@Query("q") String catId);
+
 }
 

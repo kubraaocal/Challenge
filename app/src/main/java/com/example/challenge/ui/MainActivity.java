@@ -13,6 +13,7 @@ import android.widget.AbsListView;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.SearchView;
+import android.widget.Toast;
 
 import com.example.challenge.R;
 import com.example.challenge.adapter.MainRecyclerAdapter;
@@ -73,7 +74,26 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public boolean onQueryTextChange(String s) {
-                mainRecyclerAdapter.getFilter().filter(s);
+                progressBar.setVisibility(View.VISIBLE);
+                ApiInterface apiService = ApiClient.getClient().create(ApiInterface.class);
+                Call<List<CatRecycler>> call = apiService.getCatSearch(s);
+                call.enqueue(new Callback<List<CatRecycler>>() {
+                    @Override
+                    public void onResponse(Call<List<CatRecycler>> call, Response<List<CatRecycler>> response) {
+                        if(response.isSuccessful()&&!response.body().isEmpty()) {
+                            catList = response.body();
+                            mainRecyclerAdapter.setCatList(catList);
+                            progressBar.setVisibility(View.GONE);
+                        }
+                        else{
+                            Toast.makeText(MainActivity.this, "Bulunamadı", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                    @Override
+                    public void onFailure(Call<List<CatRecycler>> call, Throwable t) {
+                        Log.d("TAG","Response = "+t.toString());
+                    }
+                });
                 return false;
             }
         });
