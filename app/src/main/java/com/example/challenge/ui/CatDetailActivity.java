@@ -5,15 +5,18 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.challenge.R;
 import com.example.challenge.api.ApiClient;
 import com.example.challenge.api.ApiInterface;
+import com.example.challenge.db.FavoriteDB;
 import com.example.challenge.model.CatDetail;
 
 import java.util.List;
@@ -26,11 +29,12 @@ public class CatDetailActivity extends AppCompatActivity {
     TextView txtName,txtDis,txtOr,txtLife,txtDog,txtWik;
     ImageView imageCat;
     ImageButton imageFav;
+    FavoriteDB favoriteDB;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cat_detail);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true); //geri gelme butonu
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         txtName = findViewById(R.id.text_name);
         txtOr=findViewById(R.id.text_origin);
@@ -40,12 +44,14 @@ public class CatDetailActivity extends AppCompatActivity {
         txtLife=findViewById(R.id.text_life);
         imageCat=findViewById(R.id.image_cat);
         imageFav=findViewById(R.id.fav_button);
+        favoriteDB=new FavoriteDB(CatDetailActivity.this);
 
 
-        Intent intent=getIntent();
-        String id = intent.getStringExtra("id");
-        Log.e("ID","recycler view gelen id: "+id);
-        boolean status=intent.getBooleanExtra("status",false);
+            Intent intent=getIntent();
+            String id = intent.getStringExtra("id");
+            String image=intent.getStringExtra("image");
+            boolean status=intent.getBooleanExtra("status",false);
+
 
         ApiInterface apiService = ApiClient.getClient().create(ApiInterface.class);
         Call<List<CatDetail>> call = apiService.getCatId(id);
@@ -57,7 +63,7 @@ public class CatDetailActivity extends AppCompatActivity {
                     try {
                         CatDetail catDetail =response.body().get(0);
                         Log.e("Res","gelen responce: "+response.body().get(0).getImageUrl());
-                       getSupportActionBar().setTitle(catDetail.getBreeds().get(0).getName().toString());//KEDİ İSMİ GELECEK VERİLERİ ÇEKTİĞİNDE
+                       getSupportActionBar().setTitle(catDetail.getBreeds().get(0).getName().toString());
                         txtOr.setText(catDetail.getBreeds().get(0).getOrigin().toString());
                         txtName.setText(catDetail.getBreeds().get(0).getName().toString());
                         txtDis.setText(catDetail.getBreeds().get(0).getDescription().toString());
@@ -76,7 +82,33 @@ public class CatDetailActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<List<CatDetail>> call, Throwable t) {
-                Log.e("TAG","a"+t.toString());
+                Log.e("TAG","hata: "+t.toString());
+            }
+        });
+
+        imageFav.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view) {
+                if(imageFav.isSelected()==false){
+                    imageFav.setSelected(true);
+                    try{
+                        Log.e("TAG","image nasıl geliyor: "+imageCat.getDrawable().toString() );
+
+                            boolean checkInsertData = favoriteDB.addCat(id, txtName.getText().toString(),
+                                    image, imageFav.isSelected());
+                            if (checkInsertData) {
+                                Toast.makeText(CatDetailActivity.this, "Başarıyla kayıt edildi", Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(CatDetailActivity.this, "Kayıt edilmedi", Toast.LENGTH_LONG).show();
+                            }
+                    }catch (NullPointerException e){
+                        Log.e("TAG","db kaydetmedi "+e.getMessage());
+                    }
+                }else{
+                    imageFav.setSelected(false);
+                    favoriteDB.deleteCat(id);
+                }
             }
         });
 

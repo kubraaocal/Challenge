@@ -38,7 +38,6 @@ public class FavoriteRecyclerAdapter extends RecyclerView.Adapter<FavoriteRecycl
     List<CatRecycler> catList;
     private FavoriteDB favoriteDB;
     List idList;
-    private boolean value;
 
     public FavoriteRecyclerAdapter(Context context, List<CatRecycler> catList) {
         this.context = context;
@@ -54,7 +53,6 @@ public class FavoriteRecyclerAdapter extends RecyclerView.Adapter<FavoriteRecycl
 
     @Override
     public FavoriteRecyclerAdapter.MyviewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        //create table on first
         SharedPreferences prefs = context.getSharedPreferences("prefs", Context.MODE_PRIVATE);
         boolean firstStart = prefs.getBoolean("firstStart", true);
         if (firstStart) {
@@ -76,8 +74,6 @@ public class FavoriteRecyclerAdapter extends RecyclerView.Adapter<FavoriteRecycl
                 Glide.with(context).load("https://cdn2.thecatapi.com/images/"+catList.get(position).getImageId()+".jpg")
                         .apply(RequestOptions.centerCropTransform()).into(holder.image);
             }
-
-
                 catList.get(position).setFavStatus(true);
                 holder.favButton.setSelected(true);
 

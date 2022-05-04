@@ -36,7 +36,6 @@ public class MainRecyclerAdapter extends RecyclerView.Adapter<MainRecyclerAdapte
     List<CatRecycler> catSearch;
     private FavoriteDB favoriteDB;
     List idList;
-    private boolean value;
 
     public MainRecyclerAdapter(Context context, List<CatRecycler> catList) {
         this.context = context;
@@ -76,14 +75,15 @@ public class MainRecyclerAdapter extends RecyclerView.Adapter<MainRecyclerAdapte
         try {
             if(idList.contains(catList.get(position).getId().toString())) {
                 holder.catName.setText(catList.get(position).getName().toString());
-                if(catList.get(position).getId().contains("beng") || catList.get(position).getId().contains("drex")
-                        || catList.get(position).getId().contains("kora") ){
-                    Glide.with(context).load("https://cdn2.thecatapi.com/images/"+catList.get(position).getImageId()+".png")
-                            .apply(RequestOptions.centerCropTransform()).into(holder.image);
-                }else{
-                    Glide.with(context).load("https://cdn2.thecatapi.com/images/"+catList.get(position).getImageId()+".jpg")
-                            .apply(RequestOptions.centerCropTransform()).into(holder.image);
-                }
+                    if(catList.get(position).getId().contains("beng") || catList.get(position).getId().contains("drex")
+                            || catList.get(position).getId().contains("kora") ){
+                        Glide.with(context).load("https://cdn2.thecatapi.com/images/"+catList.get(position).getImageId()+".png")
+                                .apply(RequestOptions.centerCropTransform()).into(holder.image);
+                    }else{
+                        Glide.with(context).load("https://cdn2.thecatapi.com/images/"+catList.get(position).getImageId()+".jpg")
+                                .apply(RequestOptions.centerCropTransform()).into(holder.image);
+                    }
+
                 catList.get(position).setFavStatus(true);
                 holder.favButton.setSelected(true);
             }
@@ -172,7 +172,7 @@ public class MainRecyclerAdapter extends RecyclerView.Adapter<MainRecyclerAdapte
                         try{
                             if(!idList.contains(catList.get(position).getId())) {
                                 boolean checkInsertData = favoriteDB.addCat(catList.get(position).getId(), catList.get(position).getName(),
-                                        catList.get(position).getImage().getImageId(), catList.get(position).isFavStatus());
+                                        catList.get(position).getImageId(), catList.get(position).isFavStatus());
                                 idList= favoriteDB.getIdList();
                                 if (checkInsertData) {
                                     Toast.makeText(context, "Başarıyla kayıt edildi", Toast.LENGTH_SHORT).show();
@@ -199,6 +199,7 @@ public class MainRecyclerAdapter extends RecyclerView.Adapter<MainRecyclerAdapte
                     int position = getAdapterPosition();
                     Intent intent=new Intent(context,CatDetailActivity.class);
                     intent.putExtra("id",catList.get(position).getId());
+                    intent.putExtra("image",catList.get(position).getImageId());
                     intent.putExtra("status",catList.get(position).isFavStatus());
                     context.startActivity(intent);
                 }

@@ -36,7 +36,6 @@ public class MainActivity extends AppCompatActivity {
     MainRecyclerAdapter mainRecyclerAdapter;
     SearchView searchView;
     ImageView favPage;
-    FavoriteDB favoriteDb;
     ProgressBar progressBar;
 
     boolean isScrolling=false;
@@ -65,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
+        ApiInterface apiService = ApiClient.getClient().create(ApiInterface.class);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String s) {
@@ -75,7 +74,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onQueryTextChange(String s) {
                 progressBar.setVisibility(View.VISIBLE);
-                ApiInterface apiService = ApiClient.getClient().create(ApiInterface.class);
                 Call<List<CatRecycler>> call = apiService.getCatSearch(s);
                 call.enqueue(new Callback<List<CatRecycler>>() {
                     @Override
@@ -86,12 +84,30 @@ public class MainActivity extends AppCompatActivity {
                             progressBar.setVisibility(View.GONE);
                         }
                         else{
-                            Toast.makeText(MainActivity.this, "Bulunamadı", Toast.LENGTH_SHORT).show();
+                            Call<List<CatRecycler>> callAll = apiService.getCats();
+                            callAll.enqueue(new Callback<List<CatRecycler>>() {
+                                @Override
+                                public void onResponse(Call<List<CatRecycler>> call, Response<List<CatRecycler>> response) {
+                                    if(response.isSuccessful()&&!response.body().isEmpty()) {
+                                        catList = response.body();
+                                        mainRecyclerAdapter.setCatList(catList);
+                                        progressBar.setVisibility(View.GONE);
+                                    }
+                                    else{
+                                        Toast.makeText(MainActivity.this, "Bulunamadı", Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                                @Override
+                                public void onFailure(Call<List<CatRecycler>> call, Throwable t) {
+                                    Log.d("TAG","Response = "+t.toString());
+                                }
+                            });
                         }
                     }
                     @Override
                     public void onFailure(Call<List<CatRecycler>> call, Throwable t) {
                         Log.d("TAG","Response = "+t.toString());
+
                     }
                 });
                 return false;

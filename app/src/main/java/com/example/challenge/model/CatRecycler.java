@@ -7,8 +7,6 @@ import com.google.gson.annotations.SerializedName;
 
 public class CatRecycler {
 
-
-
     @SerializedName("id")
     @Expose
     private String id;
@@ -57,12 +55,11 @@ public class CatRecycler {
         }
     }
 
-    public CatRecycler(String id, String name, String imageUrl) {
+    public CatRecycler(String id, String name, String imageId) {
         this.id = id;
         this.name = name;
-        this.imageId=imageUrl;
+        this.imageId=imageId;
     }
-
 
     public String getImageId() {
         return imageId;

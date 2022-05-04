@@ -86,8 +86,6 @@ public class FavoriteDB extends SQLiteOpenHelper {
             String getName= cursor.getString(index2);
             int index3 =cursor.getColumnIndex(ITEM_IMAGE);
             String getImage= cursor.getString(index3);
-            int index4 =cursor.getColumnIndex(FAVORITE_STATUS);
-            String getFavStatus= cursor.getString(index4);
 
             CatRecycler model=new CatRecycler(getId,getName,getImage);
             catList.add(model);
